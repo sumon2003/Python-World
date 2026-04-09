@@ -1,0 +1,223 @@
+-----------------------------------------------
+-----------------Random Forest-----------------
+-----------------------------------------------
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score
+
+df_loan = pd.read_csv('salaryData.csv')
+
+# ২. টার্গেট এনকোডিং (Approved: No=0, Yes=1)
+le = LabelEncoder()
+df_loan['Approved'] = le.fit_transform(df_loan['Approved'])
+
+X = df_loan[['Income', 'Credit_Score', 'Loan_Amount']]
+y = df_loan['Approved']
+
+# ৩. Decision Tree Model (তুলনার জন্য)
+dt_model = DecisionTreeClassifier(random_state=42)
+dt_model.fit(X, y)
+dt_pred = dt_model.predict(X)
+
+# ৪. Random Forest Model
+# n_estimators=100 মানে ১০০টি ছোট ছোট ডিজিশন ট্রি মিলে এই ফরেস্ট তৈরি হবে
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X, y)
+rf_pred = rf_model.predict(X)
+
+# ৫. তুলনা (Performance Comparison)
+print(f"Decision Tree Accuracy: {accuracy_score(y, dt_pred) * 100}%")
+print(f"Random Forest Accuracy: {accuracy_score(y, rf_pred) * 100}%")
+
+
+-----------------------------------------------
+-----------------Decision Tree-----------------
+-----------------------------------------------
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, classification_report
+
+df = pd.read_csv('salaryData.csv')
+
+# ২. লেবেল এনকোডিং (String to Number)
+le = LabelEncoder()
+df['Previous_Result'] = le.fit_transform(df['Previous_Result']) # Fail=0, Pass=1
+df['Pass'] = le.fit_transform(df['Pass']) # No=0, Yes=1
+
+# ৩. ফিচার (X) এবং টার্গেট (y) আলাদা করা
+X = df[['Hours_Study', 'Attendance', 'Previous_Result']]
+y = df['Pass']
+
+# ৪. মডেল তৈরি এবং ট্রেইনিং
+dt_model = DecisionTreeClassifier(criterion='entropy')
+dt_model.fit(X, y)
+
+# ৫. প্রেডিকশন এবং পারফরম্যান্স ইভ্যালুয়েশন
+y_pred = dt_model.predict(X)
+
+print("--- Decision Tree Performance ---")
+print(f"Accuracy: {accuracy_score(y, y_pred) * 100}%")
+print("\nClassification Report:\n", classification_report(y, y_pred))
+
+# একটি নতুন ডেটা দিয়ে চেক করা (যেমন: ৪ ঘণ্টা পড়াশোনা, ৭৫ উপস্থিতি, আগের রেজাল্ট Pass=1)
+sample_test = [[4, 75, 1]]
+prediction = dt_model.predict(sample_test)
+print(f"\nNew Prediction for {sample_test}: {'Pass' if prediction[0] == 1 else 'Fail'}")
+
+-----------------------------------------------
+----------Multiple Linear Regression-----------
+-----------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# ১. ডেটাসেট লোড করা (আপনার CSV ফাইল থেকে)
+df = pd.read_csv('salary_data.csv')
+
+# ২. ফিচার (X) এবং টার্গেট (y) আলাদা করা
+X = df[['Experience', 'Education_Level', 'Certifications']]
+y = df['Salary']
+
+# ৩. Train-Test Split (৮০% ট্রেইনিং, ২০% টেস্টিং)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# ৪. মডেল ট্রেইনিং
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# ৫. প্রেডিকশন
+y_pred = model.predict(X_test)
+
+# ---------------------------------------------------------
+# ৬. ইভ্যালুয়েশন (Regression Metrics)
+# ---------------------------------------------------------
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("--- Multiple Linear Regression Results ---")
+print(f"Intercept (c): {model.intercept_:.2f}")
+print(f"Coefficients (m1, m2, m3): {model.coef_}")
+print(f"Mean Squared Error (MSE): {mse:.2f}")
+print(f"R-squared Score (R2): {r2:.2f}")
+
+# ৭. ভিজ্যুয়ালাইজেশন (Actual vs Predicted Salary)
+plt.scatter(y_test, y_pred, color='blue', alpha=0.7)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
+plt.xlabel('Actual Salary')
+plt.ylabel('Predicted Salary')
+plt.title('Actual vs Predicted Salary')
+plt.show()
+
+----------------------------------------------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# ১. ডেটাসেট লোড করা
+# ধরে নিচ্ছি আপনার ফাইলটির নাম 'salary_data.csv'
+df = pd.read_csv('salary_data.csv')
+
+# ২. ফিচার (X) এবং টার্গেট (y) আলাদা করা
+X = df[['Experience', 'Education_Level', 'Certifications']]
+y = df['Salary']
+
+# ৩. Train-Test Split করা
+# আমরা ৮০% ডেটা ট্রেইনিং এবং ২০% ডেটা টেস্টিং-এর জন্য রাখছি
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# ৪. মডেল তৈরি এবং ট্রেইন করা
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# ৫. টেস্ট ডেটা দিয়ে প্রেডিকশন করা
+y_pred = model.predict(X_test)
+
+# ---------------------------------------------------------
+# ৬. পারফরম্যান্স ইভ্যালুয়েশন
+# ---------------------------------------------------------
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("--- Model Performance ---")
+print(f"Mean Squared Error (MSE): {mse:.2f}")
+print(f"R-squared Score (R2): {r2:.4f}")
+print(f"Intercept: {model.intercept_:.2f}")
+print(f"Coefficients: {model.coef_}")
+
+# ৭. ভিজ্যুয়ালাইজেশন (Actual vs Predicted)
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred, color='blue', edgecolor='k', label='Predicted vs Actual')
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2, label='Perfect Fit Line')
+plt.xlabel('Actual Salary ($1000)')
+plt.ylabel('Predicted Salary ($1000)')
+plt.title('Actual vs Predicted Salary (Multiple Linear Regression)')
+plt.legend()
+plt.show()
+
+
+
+
+-----------------------------------------------
+---------------Logistic Regression-------------
+-----------------------------------------------
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression, LinearRegression
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+
+x = df[['Experience', 'Education_Level', 'Certifications']]
+y = df['Salary']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+x_train = scaler.fit_transform(x_train)
+x_test = scaler.transform(x_test)
+
+lr_model = LogisticRegression(max_iter = 1000, random_state=42)
+
+lr_model.fit(x_train, y_train)
+
+y_pred = lr_model.predict(x_test)
+
+plt.figure(figsize=(6,4))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, cmap='Purples', fmt='d')
+plt.title('Logistic Regression Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.show()
+
+sns.regplot(x='Education_Level', y='Salary', data=df, ci=None, 
+            scatter_kws={'color': 'black'}, line_kws={'color': 'red'})
+            
+
+-----------------------------------------------
+--------------------Some Tricks----------------
+-----------------------------------------------
+Option A (Specific Column Name diye):
+X = df[['age', 'salary', 'experience']] # Bracket er bhitor list akare column gulo dibe
+
+Option B (Target bad diye baki shob):
+X = df.drop('bought_insurance', axis=1) # 'axis=1' mane column drop kora
+y = df['bought_insurance']
+
+-------------------------------------------------------
+# Check kora kothay kothay empty cell ase
+print(df.isnull().sum())
+
+# Empty cell gulo ke mean (gor) diye bhorat kora
+df['age'] = df['age'].fillna(df['age'].mean())
+
+# Athoba khali row gulo drop kore deoya
+df = df.dropna()
